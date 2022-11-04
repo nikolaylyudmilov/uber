@@ -4,6 +4,8 @@ import tw from 'tailwind-react-native-classnames'
 import { Icon } from 'react-native-elements'
 import { useNavigation } from '@react-navigation/native'
 import { Image } from 'react-native-elements/dist/image/Image'
+import { useSelector } from 'react-redux'
+import { selectTravelTimeInformation } from '../slices/navSlice'
 
 const data = [
   {
@@ -25,11 +27,13 @@ const data = [
     image: "https://links.papareact.com/7pf",
   },
 ]
+const SURGE_CHARGE_RATE = 1.5;
 
 const RideOptions = () => {
   const navigation = useNavigation();
   const [selected, setSelected] = useState();
-  
+  const travelTimeInformation = useSelector(selectTravelTimeInformation)
+
   return (
     <SafeAreaView style={tw `bg-white flex-grow`}>
       <View>
@@ -37,7 +41,7 @@ const RideOptions = () => {
           style={tw `absolute top-1 left-5 z-50 p-3 rounded-full`}>
           <Icon name='chevron-left' type='fontawesome' />
         </TouchableOpacity>
-        <Text style={tw `text-center py-3 text-xl`}>Select a Ride</Text>
+        <Text style={tw `text-center py-3 text-xl`}>Select a Ride - {travelTimeInformation?.distance?.text}</Text>
       </View>
 
       <FlatList data={data}
@@ -57,9 +61,17 @@ const RideOptions = () => {
             />
             <View style={tw `-ml-6`}>
               <Text style={tw `text-xl`}>{title}</Text>
-              <Text>Travel time...</Text>
+              <Text>{travelTimeInformation?.duration?.text} Travel Time</Text>
             </View> 
-            <Text style={tw `text-xl`}>99$</Text>
+            <Text style={tw `text-xl`}>
+              {new Intl.NumberFormat('en-gb', {
+                style: 'currency',
+                currency: 'EUR'
+              }).format(
+                (travelTimeInformation?.duration.value * SURGE_CHARGE_RATE * multiplier / 100)
+              )}
+
+            </Text>
           </TouchableOpacity>
         )}
       />
